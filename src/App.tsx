@@ -11,11 +11,9 @@ import {
   Menu,
   X,
   Music,
-  Music2,
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Stars,
 } from "lucide-react";
 
 import Welcome from "./pages/Welcome";
@@ -52,6 +50,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [musicPlaying, setMusicPlaying] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -84,33 +83,23 @@ export default function App() {
         await audio.play();
         setMusicPlaying(true);
       } catch (error) {
-        console.error("Music could not be played:", error);
+        console.error("Music could not play:", error);
         setMusicPlaying(false);
       }
     }
   };
 
-  const currentIndex = pages.findIndex(
-    (page) => page.id === currentPage
-  );
-
-  const goNext = () => {
-    const nextIndex = Math.min(currentIndex + 1, pages.length - 1);
-    goToPage(pages[nextIndex].id);
-  };
-
-  const goPrevious = () => {
-    const previousIndex = Math.max(currentIndex - 1, 0);
-    goToPage(pages[previousIndex].id);
-  };
-
   const renderPage = () => {
     switch (currentPage) {
       case "home":
-        return <Welcome onEnter={() => goToPage("memories")} />;
+        return (
+          <Welcome onEnter={() => goToPage("memories")} />
+        );
 
       case "memories":
-        return <MemoryLane />;
+        return (
+          <MemoryLane onContinue={() => goToPage("story")} />
+        );
 
       case "story":
         return <OurStory />;
@@ -128,85 +117,61 @@ export default function App() {
         return <SecretDiary />;
 
       default:
-        return <Welcome onEnter={() => goToPage("memories")} />;
+        return (
+          <Welcome onEnter={() => goToPage("memories")} />
+        );
+    }
+  };
+
+  const currentIndex = pages.findIndex(
+    (page) => page.id === currentPage
+  );
+
+  const goPrevious = () => {
+    if (currentIndex > 0) {
+      goToPage(pages[currentIndex - 1].id);
+    }
+  };
+
+  const goNext = () => {
+    if (currentIndex < pages.length - 1) {
+      goToPage(pages[currentIndex + 1].id);
     }
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#08051b] text-white">
+    <div className="min-h-screen overflow-hidden bg-[#100b27] text-white">
 
-      {/* Galaxy Background */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#100a2e] via-[#09051d] to-[#160725]" />
-
-        <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-purple-600/15 blur-[120px]" />
-
-        <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-pink-500/15 blur-[120px]" />
-
-        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-blue-500/10 blur-[120px]" />
-
-        {Array.from({ length: 45 }).map((_, index) => (
-          <motion.div
-            key={index}
-            className="absolute rounded-full bg-white"
-            style={{
-              width: index % 4 === 0 ? 3 : 2,
-              height: index % 4 === 0 ? 3 : 2,
-              left: `${(index * 37) % 100}%`,
-              top: `${(index * 53) % 100}%`,
-            }}
-            animate={{
-              opacity: [0.2, 1, 0.2],
-              scale: [0.8, 1.5, 0.8],
-            }}
-            transition={{
-              duration: 2 + (index % 4),
-              repeat: Infinity,
-              delay: (index % 7) * 0.3,
-            }}
-          />
-        ))}
+      {/* Background glow */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-fuchsia-600/10 blur-[120px]" />
+        <div className="absolute -right-40 bottom-10 h-96 w-96 rounded-full bg-purple-600/15 blur-[120px]" />
       </div>
 
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0b0720]/85 shadow-lg shadow-purple-950/20 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-8">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#100b27]/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
 
-          {/* Logo */}
           <button
             onClick={() => goToPage("home")}
-            className="flex items-center gap-2 text-left"
+            className="flex items-center gap-2 text-lg font-black tracking-wide text-pink-300"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-pink-300/30 bg-gradient-to-br from-pink-500/30 to-purple-600/30">
-              <Heart
-                size={22}
-                className="fill-pink-300 text-pink-200"
-              />
-            </div>
-
-            <div>
-              <p className="text-sm font-black tracking-wider text-white sm:text-base">
-                BESTIE UNIVERSE
-              </p>
-              <p className="text-[10px] font-bold tracking-[0.25em] text-pink-300">
-                FOREVER & ALWAYS
-              </p>
-            </div>
+            <Heart size={22} fill="currentColor" />
+            MUSKAN
           </button>
 
-          {/* Desktop Navigation */}
+          {/* Desktop navigation */}
           <nav className="hidden items-center gap-1 lg:flex">
             {pages.map((page) => {
               const Icon = page.icon;
-              const active = currentPage === page.id;
 
               return (
                 <button
                   key={page.id}
                   onClick={() => goToPage(page.id)}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all duration-300 ${active
-                      ? "border border-pink-300/30 bg-pink-500/20 text-pink-200 shadow-lg shadow-pink-500/10"
-                      : "text-purple-100/70 hover:bg-white/10 hover:text-white"
+                  className={`flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition ${currentPage === page.id
+                      ? "bg-pink-500/20 text-pink-200"
+                      : "text-purple-200 hover:bg-white/10 hover:text-white"
                     }`}
                 >
                   <Icon size={15} />
@@ -216,54 +181,49 @@ export default function App() {
             })}
           </nav>
 
-          {/* Music + Mobile Menu */}
+          {/* Music and mobile menu */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleMusic}
-              aria-label={musicPlaying ? "Pause music" : "Play music"}
-              className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${musicPlaying
-                  ? "border-pink-300/50 bg-pink-500/20 text-pink-200"
-                  : "border-purple-300/20 bg-purple-500/10 text-purple-200 hover:bg-purple-500/20"
-                }`}
+              className="flex items-center gap-2 rounded-full border border-pink-300/30 bg-pink-500/10 px-3 py-2 text-sm text-pink-200 transition hover:bg-pink-500/20"
+              aria-label="Toggle music"
             >
-              {musicPlaying ? (
-                <Music2 size={19} className="animate-pulse" />
-              ) : (
-                <Music size={19} />
-              )}
+              <Music size={17} />
+              <span className="hidden sm:inline">
+                {musicPlaying ? "Music On" : "Music Off"}
+              </span>
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-purple-300/20 bg-purple-500/10 text-white lg:hidden"
+              className="rounded-xl border border-white/10 p-2 lg:hidden"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
+              {mobileMenuOpen ? <X /> : <Menu />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile navigation */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.nav
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden border-t border-white/10 bg-[#100a2a] lg:hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden border-t border-white/10 bg-[#17102f] px-4 lg:hidden"
             >
-              <div className="space-y-1 px-4 py-3">
+              <div className="mx-auto grid max-w-7xl gap-2 py-4 sm:grid-cols-2">
                 {pages.map((page) => {
                   const Icon = page.icon;
-                  const active = currentPage === page.id;
 
                   return (
                     <button
                       key={page.id}
                       onClick={() => goToPage(page.id)}
-                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold transition-all ${active
+                      className={`flex items-center gap-3 rounded-xl p-3 text-left ${currentPage === page.id
                           ? "bg-pink-500/20 text-pink-200"
-                          : "text-purple-100 hover:bg-white/10"
+                          : "text-purple-200 hover:bg-white/10"
                         }`}
                     >
                       <Icon size={18} />
@@ -277,84 +237,56 @@ export default function App() {
         </AnimatePresence>
       </header>
 
-      {/* Page Progress */}
-      <div className="relative z-10 h-1 w-full bg-white/5">
-        <motion.div
-          className="h-full rounded-r-full bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400"
-          animate={{
-            width: `${((currentIndex + 1) / pages.length) * 100}%`,
-          }}
-          transition={{ duration: 0.5 }}
-        />
-      </div>
-
-      {/* Main Page */}
+      {/* Page content */}
       <main className="relative z-10 min-h-[75vh]">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
-            initial={{ opacity: 0, y: 25, scale: 0.99 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -15, scale: 0.99 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -18 }}
+            transition={{ duration: 0.35 }}
           >
             {renderPage()}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Previous / Next Navigation */}
-      <div className="relative z-10 mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-8">
-        <button
-          onClick={goPrevious}
-          disabled={currentIndex === 0}
-          className="flex items-center gap-2 rounded-xl border border-purple-300/20 bg-purple-500/10 px-4 py-3 text-xs font-bold text-purple-100 transition hover:bg-purple-500/20 disabled:cursor-not-allowed disabled:opacity-30 sm:text-sm"
-        >
-          <ChevronLeft size={17} />
-          Previous
-        </button>
-
-        <div className="flex items-center gap-2">
-          {pages.map((page, index) => (
-            <button
-              key={page.id}
-              onClick={() => goToPage(page.id)}
-              aria-label={`Go to ${page.label}`}
-              className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index
-                  ? "w-7 bg-pink-300"
-                  : "w-2 bg-purple-300/30 hover:bg-purple-200"
-                }`}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={goNext}
-          disabled={currentIndex === pages.length - 1}
-          className="flex items-center gap-2 rounded-xl border border-pink-300/20 bg-pink-500/10 px-4 py-3 text-xs font-bold text-pink-100 transition hover:bg-pink-500/20 disabled:cursor-not-allowed disabled:opacity-30 sm:text-sm"
-        >
-          Next
-          <ChevronRight size={17} />
-        </button>
-      </div>
-
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-[#0b071d]/70 px-4 py-8 text-center">
-        <div className="mb-3 flex items-center justify-center gap-2">
-          <Sparkles size={15} className="text-pink-300" />
-          <p className="text-xs font-black tracking-[0.25em] text-pink-200 sm:text-sm">
-            FOREVER & ALWAYS
+      <footer className="relative z-10 border-t border-white/10 px-4 py-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-5 sm:flex-row">
+
+          <p className="text-center text-sm text-purple-300">
+            Made with 💗 for a friendship that means forever.
           </p>
-          <Stars size={15} className="text-purple-300" />
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={goPrevious}
+              disabled={currentIndex === 0}
+              className="flex items-center gap-1 rounded-full border border-white/10 px-4 py-2 text-sm text-purple-200 transition hover:bg-white/10 disabled:opacity-30"
+            >
+              <ChevronLeft size={16} />
+              Previous
+            </button>
+
+            <span className="text-xs text-purple-400">
+              {currentIndex + 1} / {pages.length}
+            </span>
+
+            <button
+              onClick={goNext}
+              disabled={currentIndex === pages.length - 1}
+              className="flex items-center gap-1 rounded-full border border-pink-400/30 bg-pink-500/10 px-4 py-2 text-sm text-pink-200 transition hover:bg-pink-500/20 disabled:opacity-30"
+            >
+              Next
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
-        <p className="text-sm font-semibold text-purple-100/80">
-          Some friendships are written in the stars. Ours is written in
-          forever. 💗
-        </p>
-
-        <p className="mt-3 text-[10px] font-bold tracking-widest text-purple-300/50">
-          MADE WITH LOVE • BESTIE UNIVERSE
+        <p className="mt-5 text-center text-xs tracking-widest text-purple-500">
+          FOREVER BESTIES ✦ MUSKAN UNIVERSE
         </p>
       </footer>
     </div>

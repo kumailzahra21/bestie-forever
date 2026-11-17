@@ -13,7 +13,6 @@ import {
     Clock3,
     X,
     ChevronRight,
-    Send,
     Infinity,
 } from "lucide-react";
 
@@ -404,7 +403,7 @@ export default function SecretDiary() {
                     </div>
 
                     <div className="mx-auto max-w-3xl space-y-5">
-                        {memories.map((memory, index) => (
+                        {memories.map((memory) => (
                             <div
                                 key={memory.title}
                                 className="diary-card flex gap-4 rounded-3xl p-5 transition hover:-translate-y-1 sm:gap-6 sm:p-7"
